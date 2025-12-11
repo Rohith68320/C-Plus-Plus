@@ -19,10 +19,24 @@ using namespace std;
 /**
  * @brief Recursive Extended Euclid Algorithm
  *
- * Computes gcd(a, b) along with coefficients x and y such that:
+ * This method recursively applies the idea that:
  * \f[
- * a \times x + b \times y = \gcd(a, b)
+ * \gcd(a, b) = \gcd(b,\, a \bmod b)
  * \f]
+ *
+ * Each recursive step reduces the problem size by replacing (a, b)
+ * with (b, a % b). Once b becomes 0, the algorithm has reached the base
+ * case, where gcd = a and the Bézout coefficients (x, y) are known.
+ *
+ * On returning from recursion, the coefficients are updated in reverse
+ * order using:
+ * \f[
+ * x = y_1,\qquad
+ * y = x_1 - \left\lfloor \frac{a}{b} \right\rfloor \cdot y_1
+ * \f]
+ *
+ * This back-substitution step reconstructs the Bézout identity
+ * for the original pair (a, b).
  *
  * @param[in] a first number
  * @param[in] b second number
@@ -49,7 +63,29 @@ void extended_euclid_recursive(long long a, long long b, long long& gcd,
 /**
  * @brief Iterative Extended Euclid Algorithm
  *
- * Equivalent to the recursive version but performed iteratively.
+ * This version performs the same transformations as the recursive method
+ * but unfolds the process into a loop. It repeatedly updates (a, b)
+ * using the identity:
+ * \f[
+ * (a, b) \rightarrow (b,\; a - \lfloor a/b \rfloor \cdot b)
+ * \f]
+ *
+ * Alongside (a, b), it maintains two pairs of coefficients (x0, y0) and
+ * (x1, y1) which evolve according to the same quotient used during each
+ * division step. Once b becomes zero, the surviving values (x0, y0)
+ * form the Bézout coefficients:
+ * \f[
+ * a \times x_0 + b_{\text{original}} \times y_0 = \gcd(a, b)
+ * \f]
+ *
+ * This approach avoids recursion and makes the sequence of updates
+ * easier to trace step-by-step.
+ *
+ * @param[in] a first number
+ * @param[in] b second number
+ * @param[out] gcd greatest common divisor
+ * @param[out] x coefficient of a
+ * @param[out] y coefficient of b
  */
 void extended_euclid_iterative(long long a, long long b, long long& gcd,
                                long long& x, long long& y) {
