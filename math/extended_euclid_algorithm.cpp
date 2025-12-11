@@ -1,97 +1,125 @@
 /**
  * @file
- * @brief GCD using [extended Euclid's algorithm]
+ * @brief GCD using extended Euclid's algorithm
  * (https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
  *
- * Finding coefficients of a and b ie x and y in  Bézout's identity
- * \f[\text{gcd}(a, b) = a \times x + b \times y \f]
- * This is also used in finding Modular
- * multiplicative inverse of a number. (A * B)%M == 1 Here B is the MMI of A for
- * given M, so extendedEuclid (A, M) gives B.
+ * Finding coefficients x and y for Bézout's identity:
+ * \f[
+ * \gcd(a, b) = a \times x + b \times y
+ * \f]
+ *
+ * This algorithm is also used to compute the Modular Multiplicative Inverse
+ * (MMI). If (A × B) % M == 1, then B is MMI(A, M), and
+ * extended_euclid_recursive(A, M) provides B.
  */
-#include <algorithm>  // for swap function
+
 #include <iostream>
-#include <cstdint>
+using namespace std;
 
 /**
- * function to update the coefficients per iteration
- * \f[r_0,\,r = r,\, r_0 - \text{quotient}\times r\f]
+ * @brief Recursive Extended Euclid Algorithm
  *
- * @param[in,out] r signed or unsigned
- * @param[in,out] r0 signed or unsigned
- * @param[in] quotient  unsigned
+ * Computes gcd(a, b) along with coefficients x and y such that:
+ * \f[
+ * a \times x + b \times y = \gcd(a, b)
+ * \f]
+ *
+ * @param[in] a first number
+ * @param[in] b second number
+ * @param[out] gcd greatest common divisor
+ * @param[out] x coefficient of a
+ * @param[out] y coefficient of b
  */
-template <typename T, typename T2>
-inline void update_step(T *r, T *r0, const T2 quotient) {
-    T temp = *r;
-    *r = *r0 - (quotient * temp);
-    *r0 = temp;
+void extended_euclid_recursive(long long a, long long b, long long& gcd,
+                               long long& x, long long& y) {
+    if (b == 0) {
+        gcd = a;
+        x = 1;
+        y = 0;
+        return;
+    }
+
+    long long x1, y1;
+    extended_euclid_recursive(b, a % b, gcd, x1, y1);
+
+    x = y1;
+    y = x1 - (a / b) * y1;
 }
 
 /**
- * Implementation using iterative algorithm from
- * [Wikipedia](https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Pseudocode)
+ * @brief Iterative Extended Euclid Algorithm
  *
- * @param[in] A unsigned
- * @param[in] B unsigned
- * @param[out] GCD unsigned
- * @param[out] x signed
- * @param[out] y signed
+ * Equivalent to the recursive version but performed iteratively.
  */
-template <typename T1, typename T2>
-void extendedEuclid_1(T1 A, T1 B, T1 *GCD, T2 *x, T2 *y) {
-    if (B > A)
-        std::swap(A, B);  // Ensure that A >= B
+void extended_euclid_iterative(long long a, long long b, long long& gcd,
+                               long long& x, long long& y) {
+    long long x0 = 1, y0 = 0, x1 = 0, y1 = 1;
 
-    T2 s = 0, s0 = 1;
-    T2 t = 1, t0 = 0;
-    T1 r = B, r0 = A;
+    while (b != 0) {
+        long long q = a / b, temp = b;
+        b = a - q * b;
+        a = temp;
 
-    while (r != 0) {
-        T1 quotient = r0 / r;
-        update_step(&r, &r0, quotient);
-        update_step(&s, &s0, quotient);
-        update_step(&t, &t0, quotient);
+        temp = x1;
+        x1 = x0 - q * x1;
+        x0 = temp;
+
+        temp = y1;
+        y1 = y0 - q * y1;
+        y0 = temp;
     }
-    *GCD = r0;
-    *x = s0;
-    *y = t0;
+
+    gcd = a;
+    x = x0;
+    y = y0;
 }
 
 /**
- * Implementation using recursive algorithm
- *
- * @param[in] A unsigned
- * @param[in] B unsigned
- * @param[out] GCD unsigned
- * @param[in,out] x signed
- * @param[in,out] y signed
+ * @brief Self-test examples in your preferred style
  */
-template <typename T, typename T2>
-void extendedEuclid(T A, T B, T *GCD, T2 *x, T2 *y) {
-    if (B > A)
-        std::swap(A, B);  // Ensure that A >= B
+void test() {
+    // Test 0
+    long long gcd0, x0, y0;
+    cout << "Test 0" << endl;
+    cout << "Input: a = 30 and b = 20" << endl;
 
-    if (B == 0) {
-        *GCD = A;
-        *x = 1;
-        *y = 0;
-    } else {
-        extendedEuclid(B, A % B, GCD, x, y);
-        T2 temp = *x;
-        *x = *y;
-        *y = temp - (A / B) * (*y);
-    }
+    extended_euclid_recursive(30, 20, gcd0, x0, y0);
+    cout << "Recursive => gcd: " << gcd0 << "  x: " << x0 << "  y: " << y0
+         << endl;
+
+    extended_euclid_iterative(30, 20, gcd0, x0, y0);
+    cout << "Iterative => gcd: " << gcd0 << "  x: " << x0 << "  y: " << y0
+         << endl;
+
+    // Test 1
+    long long gcd1, x1, y1;
+    cout << "Test 1" << endl;
+    cout << "Input: a = 101 and b = 23" << endl;
+
+    extended_euclid_recursive(101, 23, gcd1, x1, y1);
+    cout << "Recursive => gcd: " << gcd1 << "  x: " << x1 << "  y: " << y1
+         << endl;
+
+    extended_euclid_iterative(101, 23, gcd1, x1, y1);
+    cout << "Iterative => gcd: " << gcd1 << "  x: " << x1 << "  y: " << y1
+         << endl;
+
+    // Test 2
+    long long gcd2, x2, y2;
+    cout << "Test 2" << endl;
+    cout << "Input: a = 55 and b = 34" << endl;
+
+    extended_euclid_recursive(55, 34, gcd2, x2, y2);
+    cout << "Recursive => gcd: " << gcd2 << "  x: " << x2 << "  y: " << y2
+         << endl;
+
+    extended_euclid_iterative(55, 34, gcd2, x2, y2);
+    cout << "Iterative => gcd: " << gcd2 << "  x: " << x2 << "  y: " << y2
+         << endl;
 }
 
 /// Main function
 int main() {
-    uint32_t a, b, gcd;
-    int32_t x, y;
-    std::cin >> a >> b;
-    extendedEuclid(a, b, &gcd, &x, &y);
-    std::cout << gcd << " " << x << " " << y << std::endl;
-    extendedEuclid_1(a, b, &gcd, &x, &y);
-    std::cout << gcd << " " << x << " " << y << std::endl;
+    test();  // run self-test examples
     return 0;
 }
