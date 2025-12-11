@@ -103,6 +103,7 @@ void test() {
 }
 
 /// Main function
+// returns 0 in case of no error.
 int main() {
     test();  // run self-test examples
     return 0;
