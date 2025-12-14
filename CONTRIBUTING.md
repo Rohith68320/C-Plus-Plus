@@ -50,6 +50,20 @@ You can add new algorithms or data structures that are **not present in the repo
 - Do not update [`README.md`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/README.md) along with other changes. First, create an issue and then link to that issue in your pull request to suggest specific changes required to [`README.md`](https://github.com/TheAlgorithms/C-Plus-Plus/blob/master/README.md).
 - The repository follows [Doxygen](https://www.doxygen.nl/manual/docblocks.html) standards and auto-generates the [repository website](https://thealgorithms.github.io/C-Plus-Plus). Please ensure the code is documented in this structure. A sample implementation is given below.
 
+##### Example: Info and Caution Blocks
+
+When writing contribution rules or documentation, you may use special markdown blocks to highlight important information.
+
+**Info block example:**
+
+> [!INFO]
+> Use this block to provide helpful context or guidance for contributors.
+
+**Caution block example:**
+
+> [!CAUTION]
+> Avoid adding new implementations that duplicate existing algorithms in the repository.
+
 #### Test
 
 - Make sure to add examples and test cases in your `main()` function.
